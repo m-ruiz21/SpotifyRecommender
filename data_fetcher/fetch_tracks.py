@@ -1,35 +1,25 @@
 import authorizer
 import pandas as pd
-import tekore as tk
-import time
 from tqdm import tqdm
-
-def get_song_features(spotify: tk.Spotify, track_ids: list) -> list:
-    retries = 0 
-    while True: 
-        try:
-            return spotify.tracks_audio_features(track_ids)
-        except tk.TooManyRequests:
-            retries += 1
-            print(f"ERROR: failed to retrieve audio features, retrying in {30 * retries} seconds...")
-            time.sleep(30 * retries)
-            pass
-
+from spotify_utils import runWithRetry
 
 spotify = authorizer.authorize()
 genres = spotify.recommendation_genre_seeds()
 
-tracks = list()
-
+terms = set() 
 for genre in tqdm(genres):
+    recs = runWithRetry(spotify.recommendations, genres = [genre], limit = 100)
     recs = spotify.recommendations(genres = [genre], limit = 100)
     track_ids = [track.id for track in recs.tracks]
 
     for track in recs.tracks:
-        song_features = get_song_features(spotify, track_ids) 
+        terms.add(track.name)
+        for artist in track.artists:
+            terms.add(artist.name)
 
-        tracks.append(song_features)
-
-df = pd.DataFrame(tracks)
+df = pd.DataFrame(terms)
 df.drop_duplicates(subset = "id", keep = "first", inplace = True)
-df.to_csv("tracks.csv", index = False)
+df.to_csv("playlist_search_terms.csv", index = False)
+
+print("\nDONE FETCHING TERMS\n")
+print(f"Terms found: {len(terms)}")
