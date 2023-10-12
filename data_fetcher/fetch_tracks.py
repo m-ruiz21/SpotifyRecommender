@@ -4,13 +4,11 @@ from tqdm import tqdm
 from spotify_utils import runWithRetry
 
 spotify = authorizer.authorize()
-genres = spotify.recommendation_genre_seeds()
+genres = runWithRetry(spotify.recommendation_genre_seeds) 
 
 terms = set() 
 for genre in tqdm(genres):
     recs = runWithRetry(spotify.recommendations, genres = [genre], limit = 100)
-    recs = spotify.recommendations(genres = [genre], limit = 100)
-    track_ids = [track.id for track in recs.tracks]
 
     for track in recs.tracks:
         terms.add(track.name)
@@ -18,7 +16,6 @@ for genre in tqdm(genres):
             terms.add(artist.name)
 
 df = pd.DataFrame(terms)
-df.drop_duplicates(subset = "id", keep = "first", inplace = True)
 df.to_csv("playlist_search_terms.csv", index = False)
 
 print("\nDONE FETCHING TERMS\n")
