@@ -7,6 +7,10 @@ import azure.functions as func
 from ValidationUtils.PlaylistId import get_playlist_id
 
 class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
+    """
+    Task to get the average features of a playlist.
+    """
+
     request: func.HttpRequest = None 
 
     def __init__(self, request: func.HttpRequest):

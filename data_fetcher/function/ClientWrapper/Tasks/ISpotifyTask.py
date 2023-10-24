@@ -15,8 +15,17 @@ class ISpotifyTask(Generic[T], metaclass=ABC):
 
     @abstractmethod
     def run(self, client: Spotify) -> Result[T, str]:
+        """
+        Runs the task with the given client.
+        """
         pass
 
     @classmethod
     def create_task(cls, request: func.HttpRequest):
+        """
+        Creates a task with the given request. 
+        Note:
+            Created to ensure uniformity in Task creation.
+        """
+
         return cls(request)
