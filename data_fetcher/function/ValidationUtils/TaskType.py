@@ -9,7 +9,7 @@ class TaskType:
 
 
 def get_req_type(req: func.HttpRequest) -> Result[ISpotifyTask, str]: 
-    req_type: str = req.route_params.get('task_param')
+    req_type: str = req.route_params.get('task_type')
 
     match req_type:
         case TaskType.GET_AVG_PLAYLIST_RATING:

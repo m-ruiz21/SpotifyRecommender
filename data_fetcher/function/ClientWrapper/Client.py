@@ -2,10 +2,8 @@ import tekore as tk
 from tekore._client import Spotify
 from Models.Result import Result
 import os
-from dataclasses import dataclass
-import json
-from typing import TypeVar, Generic
-from Tasks import ISpotifyTask
+from typing import TypeVar 
+from ValidationUtils.TaskType import ISpotifyTask
 
 T = TypeVar('T')
 class SpotifyClient:
@@ -25,12 +23,12 @@ class SpotifyClient:
             Result[Spotify, str]: The Spotify client if the initialization was successful, or an error message otherwise.
         """
         try:
-           Result.Ok(cls())
+           return Result.Ok(cls())
         except Exception as e:
             Result.Err(f"Failed to initialize Spotify client: {e.args[0]}") 
 
 
-    def run(self, task: ISpotifyTask[T]) -> Result[T]:
+    def run(self, task: Result[ISpotifyTask[T], str]) -> Result[T, str]:
         """
         Runs a given task with the Spotify client.
 
@@ -40,7 +38,8 @@ class SpotifyClient:
         Returns:
             Result[T]: The result of the task if the operation was successful, or an error message otherwise.
         """
-        return task.run(self.__client)
+        
+        return task.map(lambda task: task.run(self.__client))
 
 
     def __authorize(self) -> Result[Spotify, str]:

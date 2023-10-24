@@ -116,7 +116,7 @@ class Result(Generic[T, E]):
             try:
                 return func(self.value)
             except Exception as e:
-                return Result.Err(e)
+                return Result.Err(e.args[0])
         else:
             return self
 

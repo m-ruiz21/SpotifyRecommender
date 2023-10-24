@@ -1,4 +1,4 @@
-import ISpotifyTask
+from ValidationUtils.TaskType import ISpotifyTask
 from Models.Result import Result 
 from Models.AudioFeatures import AudioFeatures
 import tekore as tk
@@ -18,11 +18,11 @@ class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
         gets average playlist features and validates the input
         """
         playlist_id = get_playlist_id(self.request)
-        album_features = playlist_id.map(lambda playlist_id: client.get_avg_playlist_features(playlist_id, client))
+        album_features = playlist_id.map(lambda playlist_id: self.__get_avg_playlist_features(playlist_id, client))
         return album_features
 
 
-    def get_avg_playlist_features(self, playlist_id: str, client: Spotify) -> Result[AudioFeatures, str]:
+    def __get_avg_playlist_features(self, playlist_id: str, client: Spotify) -> Result[AudioFeatures, str]:
         """
         gets the average features of a playlist.
 
@@ -32,7 +32,7 @@ class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
         Returns:
             Result[tk.model.AudioFeatures, str]: The features of the playlist if the operation was successful, or an error message otherwise. 
         """
-        features = self.__playlist_audio_features(self.playlist_id, client)
+        features = self.__playlist_audio_features(playlist_id, client)
         avg_features = features.map(lambda features: self.__get_avg_features(features))
         return avg_features 
 

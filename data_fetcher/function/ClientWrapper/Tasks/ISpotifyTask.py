@@ -7,5 +7,5 @@ class ISpotifyTask(Generic[T]):
     """
     Interface for a task that can be run with the Spotify Client Wrapper. 
     """
-    def run(self, client: Spotify) -> Result[T]:
+    def run(self, client: Spotify) -> Result[T, str]:
         pass
