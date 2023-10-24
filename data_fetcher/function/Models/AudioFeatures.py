@@ -1,6 +1,7 @@
 import json
+from Models.IApiModel import IApiModel
 
-class AudioFeatures:
+class AudioFeatures(IApiModel):
     acousticness: float = 0.0 
     danceability: float = 0.0
     duration_ms: int = 0
@@ -15,5 +16,5 @@ class AudioFeatures:
     time_signature: int = 0
     valence: float = 0.0
 
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps(self.__dict__)

@@ -10,7 +10,7 @@ class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
     request: func.HttpRequest = None 
 
     def __init__(self, request: func.HttpRequest):
-        self.request = request
+        super().__init__(request)
 
 
     def run(self, client: Spotify) -> Result[AudioFeatures, str]:
