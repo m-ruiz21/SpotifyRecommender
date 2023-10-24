@@ -8,7 +8,7 @@ from typing import TypeVar, Generic
 from Tasks import ISpotifyTask
 
 T = TypeVar('T')
-class Client:
+class SpotifyClient:
     __client: Spotify = None
 
     def __init__(self) -> None:

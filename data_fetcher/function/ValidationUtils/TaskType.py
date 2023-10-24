@@ -5,7 +5,7 @@ from ClientWrapper.Tasks.GetAvgPlaylistRating import GetAvgPlaylistRating
 
 # create python enum
 class TaskType:
-    GET_AVG_PLAYLIST_RATING = "AVG_PLAYLIST_RATING"
+    GET_AVG_PLAYLIST_RATING = "playlist_rating"
 
 
 def get_req_type(req: func.HttpRequest) -> Result[ISpotifyTask, str]: 
