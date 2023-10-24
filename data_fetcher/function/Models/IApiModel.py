@@ -1,10 +1,9 @@
-from abc import ABC, abstractmethod
+import json
 
-class IApiModel(ABC):
+class IApiModel():
     """
-    Interface for all models returned by the API
+    Base class / interface for all models returned by the API
     """    
-
-    @abstractmethod
+    
     def to_json(self) -> str:
-        pass
+        return json.dumps(self.__dict__)

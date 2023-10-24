@@ -15,6 +15,3 @@ class AudioFeatures(IApiModel):
     tempo: float = 0.0
     time_signature: int = 0
     valence: float = 0.0
-
-    def to_json(self) -> str:
-        return json.dumps(self.__dict__)
