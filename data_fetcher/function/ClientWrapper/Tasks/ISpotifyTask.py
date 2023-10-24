@@ -5,7 +5,7 @@ import azure.functions as func
 from abc import ABC, abstractmethod
 
 T = TypeVar('T')
-class ISpotifyTask(Generic[T], metaclass=ABC):
+class ISpotifyTask(Generic[T], ABC):
     """
     Interface for a task that can be run with the Spotify Client Wrapper. 
     """

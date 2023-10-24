@@ -17,7 +17,7 @@ def album_features_proxy(req: func.HttpRequest) -> func.HttpResponse:
     
     if task_result.is_err():
         error_code = 400 if task.is_err() else 500
-        logging.error(f'[ERROR]: Python HTTP trigger function returned error: {task_result.error} - Returned status code: 400')
+        logging.error(f'[ERROR]: Python HTTP trigger function returned error: \"{task_result.error}\" - Returned status code: 400')
         return func.HttpResponse(task_result.error, status_code=error_code)
     
     result_json = task_result.unwrap().to_json()

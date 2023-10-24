@@ -3,12 +3,19 @@ from typing import Optional
 from tekore.model import SimplePlaylist
 
 class Playlist(IApiModel):
-    id: str = "" 
-    name: str = ""
-    description: Optional[str] = None
+    def __init__(
+            self,
+            id: str, 
+            name: str, 
+            description: Optional[str]) -> None:
+
+        self.id = id
+        self.name = name
+        self.description = description
+
 
     @classmethod
-    def from_simple_playlist(cls, simple_playlist: SimplePlaylist) -> 'Playlist':
+    def from_simple_playlist(cls, simple_playlist: SimplePlaylist) -> 'Playlist': 
         return cls(
                 simple_playlist.id, 
                 simple_playlist.name, 
