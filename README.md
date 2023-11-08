@@ -1,8 +1,10 @@
-Welcome to the project!
+# SpotifyRecommender
 
-There's three things included: data_fetcher, interface, model, and common. 
-The first three are made to hold their respective "parts" of the project and common is for the code / models they all share.
+## Documenation
+Documentation on the proxies and other aspects of the project can be found in the wiki page or in the [design document.](https://docs.google.com/document/d/1zC-kdPw4mLZAQSHgnoq8gnnF_FW-U8kmtuk2DkBA-6E/edit?usp=sharing)
+## Dependencies
+- Python 3.11
 
-Note that in the 'data_fetcher' there is the code for the proxy. However, note this is simply for reference and the actual code and CI/CD flows reside in a seperate github repo for ease of set up and security issues.
-
-Happy coding!
+## Getting Started Contributing
+To get started, select a feature from the issues tab, create branch, accomplish task, and attach it to PR.
+You can approve your own PR, PR's are working simply as a feature to keep track of tasks being completed.
