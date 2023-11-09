@@ -1,0 +1,104 @@
+from datetime import datetime
+from typing import List, Literal, Optional, Union
+
+from .base import Item
+from .episode import FullEpisode
+from .local import LocalTrack
+from .member import Followers, Image
+from .paging import OffsetPaging
+from .serialise import Model
+from .track import FullTrack, Tracks
+from .user import PublicUser
+
+
+class FullPlaylistTrack(FullTrack):
+    """
+    Track on a playlist.
+
+    Provides :attr:`episode` and :attr:`track` booleans
+    to easily determine the type of playlist item.
+    """
+
+    episode: Literal[False]
+    track: Literal[True]
+    is_local: Literal[False]
+
+
+class FullPlaylistEpisode(FullEpisode):
+    """
+    Episode on a playlist.
+
+    Provides :attr:`episode` and :attr:`track` booleans
+    to easily determine the type of playlist item.
+    """
+
+    episode: Literal[True]
+    track: Literal[False]
+
+
+class LocalPlaylistTrack(LocalTrack):
+    """
+    Local track on a playlist.
+
+    Provides :attr:`episode` and :attr:`track` booleans
+    to easily determine the type of playlist item.
+    """
+
+    episode: Literal[False] = False
+    track: Literal[True] = True
+
+
+class PlaylistTrack(Model):
+    """Track or episode on a playlist."""
+
+    added_at: datetime
+    added_by: PublicUser
+    is_local: bool
+    track: Union[FullPlaylistTrack, FullPlaylistEpisode, LocalPlaylistTrack, None]
+
+    primary_color: Optional[str]
+    video_thumbnail: Optional[dict]
+
+
+class PlaylistTrackPaging(OffsetPaging):
+    """Paging of playlist tracks."""
+
+    items: List[PlaylistTrack]
+
+
+class Playlist(Item):
+    """
+    Playlist base.
+
+    :attr:`owner` can be ``None`` on featured playlists.
+    """
+
+    collaborative: bool
+    description: Optional[str]
+    external_urls: dict
+    images: List[Image]
+    name: str
+    owner: PublicUser
+    public: Optional[bool]
+    snapshot_id: str
+
+    primary_color: Optional[str]
+
+
+class SimplePlaylist(Playlist):
+    """Simplified playlist object."""
+
+    tracks: Tracks
+
+
+class FullPlaylist(Playlist):
+    """Complete playlist object."""
+
+    followers: Followers
+    tracks: PlaylistTrackPaging
+
+
+class SimplePlaylistPaging(OffsetPaging):
+    """Paging of simplified playlists."""
+
+    items: List[Optional[SimplePlaylist]]
