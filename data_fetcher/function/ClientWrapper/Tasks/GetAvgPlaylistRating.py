@@ -51,23 +51,31 @@ class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
         for track_features in tracks_features:
             avg_features.acousticness += track_features.acousticness
             avg_features.danceability += track_features.danceability
+            avg_features.duration_ms += track_features.duration_ms
             avg_features.energy += track_features.energy
             avg_features.instrumentalness += track_features.instrumentalness
+            avg_features.key += track_features.key
             avg_features.liveness += track_features.liveness
             avg_features.loudness += track_features.loudness
+            avg_features.mode += track_features.mode
             avg_features.speechiness += track_features.speechiness
             avg_features.tempo += track_features.tempo
+            avg_features.time_signature += track_features.time_signature
             avg_features.valence += track_features.valence
         
         avg_features.acousticness /= num_tracks 
-        avg_features.danceability /= num_tracks 
-        avg_features.energy /= num_tracks 
-        avg_features.instrumentalness /= num_tracks 
-        avg_features.liveness /= num_tracks 
-        avg_features.loudness /= num_tracks 
-        avg_features.speechiness /= num_tracks 
-        avg_features.tempo /= num_tracks 
-        avg_features.valence /= num_tracks 
+        avg_features.danceability /= num_tracks
+        avg_features.duration_ms /= num_tracks
+        avg_features.energy /= num_tracks
+        avg_features.instrumentalness /= num_tracks
+        avg_features.key /= num_tracks
+        avg_features.liveness /= num_tracks
+        avg_features.loudness /= num_tracks
+        avg_features.mode /= num_tracks
+        avg_features.speechiness /= num_tracks
+        avg_features.tempo /= num_tracks
+        avg_features.time_signature /= num_tracks
+        avg_features.valence /= num_tracks
 
         return Result.Ok(avg_features)
 

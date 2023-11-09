@@ -1,3 +1,4 @@
-# import all of the files in Models
-
-from .Models import *
+from common.Models.Result import Result
+from common.Models.AudioFeatures import AudioFeatures
+from common.Models.Playlist import Playlist
+from common.Models.SearchResult import SearchResult
