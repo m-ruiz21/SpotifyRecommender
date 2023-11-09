@@ -1,9 +1,7 @@
-from Models.Playlist import Playlist
-from Models.IApiModel import IApiModel
-from typing import Generic, TypeVar
+from common.Models.IApiModel import IApiModel
+from typing import TypeVar
 import json
 
-T = TypeVar('T')
 class SearchResult(IApiModel):
     def __init__(
             self,

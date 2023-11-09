@@ -1,4 +1,4 @@
-from Models.IApiModel import IApiModel
+from common.Models.IApiModel import IApiModel
 from typing import Optional
 from tekore.model import SimplePlaylist
 
