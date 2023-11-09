@@ -1,5 +1,5 @@
 import json
-from Models.IApiModel import IApiModel
+from common.Models.IApiModel import IApiModel
 
 class AudioFeatures(IApiModel):
     acousticness: float = 0.0 
