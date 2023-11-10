@@ -20,7 +20,11 @@ class DataFetcher:
 
         playlists = self.fetch_playlists("rock")
 
+        print(len(playlists.value))
+
         playlist_data = playlists.map(lambda playlists : self.fetch_playlists_data(playlists))
+
+        print(len(playlist_data.value))
 
         job_result = playlist_data.map(lambda data: self.write_results_to_csv(data, 'data/rock.csv'))
         return job_result
@@ -43,6 +47,7 @@ class DataFetcher:
             df = pd.DataFrame(data_dicts)
             if not os.path.isfile(path):
                 df.to_csv(path, index_label='id')
+                return Result.Ok("Success")
             
             df_existing = pd.read_csv(path, index_col='id')
             start_id = df_existing.index.max() + 1
