@@ -13,7 +13,11 @@ class DataFetcher:
         self.terms = self.fetch_terms()
 
     
-    def run(self) -> Result[str, str]: 
+    def run(self) -> Result[str, str]:
+        '''
+        function that runs the data fetching job for given terms
+        '''
+
         playlists = self.fetch_playlists("rock")
 
         playlist_data = playlists.map(lambda playlists : self.fetch_playlists_data(playlists))
@@ -25,6 +29,13 @@ class DataFetcher:
     def write_results_to_csv(self, data: list[ModelData], path: str) -> Result[str, str]:
         ''' 
         function that writes to csv file 
+
+        Args:
+            data (list[ModelData]): list of ModelData objects to write to csv
+            path (str): path to csv file to write to
+        
+        Returns:
+            Result[str, str]: "Success" / Error message for logging
         ''' 
         
         try:
@@ -45,6 +56,9 @@ class DataFetcher:
 
 
     def fetch_playlists_data(self, playlists: list[Playlist]) -> Result[list[ModelData], str]:
+        """
+        function that fetches data for given list of playlists 
+        """
         results = list[ModelData]()
         for playlist in playlists:
             audio_features = self.fetch_playlist_data(playlist)
@@ -57,6 +71,9 @@ class DataFetcher:
 
 
     def fetch_playlists(self, term: str) -> Result[list[Playlist], str]:
+        """
+        function that fetches playlists for given search term 
+        """
         playlists = self.client.map(lambda client: client.get(f'playlist_search/{term}'))
         playlists = playlists.map(lambda playlists: [Playlist.from_json(json) for json in playlists])
         for i, playlist in enumerate(playlists):
@@ -67,6 +84,10 @@ class DataFetcher:
 
 
     def fetch_playlist_data(self, playlist: Playlist) -> Result[AudioFeatures, str]:
+        """
+        function that fetches audio features for given playlist
+        """
+
         audio_features = self.client.map(lambda client: client.get(f'playlist_rating/{playlist.id}'))
         if audio_features is None: print('aaaaah none returned by get')
 
@@ -76,6 +97,10 @@ class DataFetcher:
 
 
     def fetch_terms(self) -> pd.DataFrame:
+        """
+        function that fetches the terms from file
+        """
+
         data = dict[str]() 
         with open('data/full_title.txt', 'r', encoding='utf-8', errors='ignore') as file:
             for line in file:
