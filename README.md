@@ -21,5 +21,5 @@ py -m data_fetcher.fetcher_driver
 Finally, when you install a package, make sure you install it in the virtual env and add the name of the package to requirements.txt so everybody stays up to date!
 
 ## Contributing
-To get started, select a feature from the issues tab, create branch for the PR, accomplish task, and attach it to PR.
-You can approve your own PR, PR's are working simply as a feature to keep track of tasks being completed.
+To get started, select a feature from the issues tab, create branch for the PR, accomplish task, and attach it to PR.  
+Note: you can approve your own PR, PR's are working simply as a feature to keep track of tasks being completed / so we don't run into each other too much.
