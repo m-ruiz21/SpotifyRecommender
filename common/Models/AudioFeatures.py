@@ -63,7 +63,8 @@ class AudioFeatures(IApiModel):
         audio_features = cls.from_dict(json_dict)
         return audio_features
     
- 
+    
+    @classmethod
     def from_dict(cls, json_dict) -> Result['AudioFeatures', str]:
         try:
             audio_features = cls(
