@@ -12,3 +12,7 @@ class IApiModel():
         Converts the model to a JSON string. 
         """
         return json.dumps(self.__dict__)
+    
+
+    def __str__(self) -> str:
+        return json.dumps(self.__dict__, indent=4)

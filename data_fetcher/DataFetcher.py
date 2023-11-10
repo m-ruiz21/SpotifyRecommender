@@ -1,7 +1,7 @@
 import pandas as pd
 from data_fetcher.ProxyClient import ProxyClient
-from common import Playlist, Result, AudioFeatures
-
+from common import Playlist, Result, AudioFeatures, ModelData
+import os
 
 class DataFetcher:
 
@@ -12,15 +12,51 @@ class DataFetcher:
         self.client = ProxyClient.start()
         self.terms = self.fetch_terms()
 
+    
+    def run(self) -> Result[str, str]: 
+        playlists = self.fetch_playlists("rock")
 
-    def fetch_playlists_data(self):
-        for index, row in self.terms.iterrows():
-            term = row['Term']
-            count = row['Count']
-            playlists = self.fetch_playlists(term)
+        playlist_data = playlists.map(lambda playlists : self.fetch_playlists_data(playlists))
+
+        job_result = playlist_data.map(lambda data: self.write_results_to_csv(data, 'data/rock.csv'))
+        return job_result
+
+    
+    def write_results_to_csv(self, data: list[ModelData], path: str) -> Result[str, str]:
+        ''' 
+        function that writes to csv file 
+        ''' 
+        
+        try:
+            data_dicts = [obj.__dict__ for obj in data]
+            df = pd.DataFrame(data_dicts)
+            if not os.path.isfile(path):
+                df.to_csv(path, index_label='id')
+            
+            df_existing = pd.read_csv(path, index_col='id')
+            start_id = df_existing.index.max() + 1
+            df.index = pd.RangeIndex(start=start_id, stop=start_id + len(df))
+            df_combined = pd.concat([df_existing, df])
+            df_combined.to_csv(path, index_label='id')
+
+            return Result.Ok("Success")
+        except Exception as e:
+            return Result.Err(f"Failed to write to csv: {e.args[0]}")
 
 
-    def fetch_playlists(self, term: str) -> Result[Playlist, str]:
+    def fetch_playlists_data(self, playlists: list[Playlist]) -> Result[list[ModelData], str]:
+        results = list[ModelData]()
+        for playlist in playlists:
+            audio_features = self.fetch_playlist_data(playlist)
+            if audio_features.is_err(): return Result.Err(audio_features.error)
+            
+            results.append(ModelData(playlist.name, audio_features.unwrap()))
+            results.append(ModelData(playlist.description, audio_features.unwrap()))
+        
+        return Result.Ok(results)
+
+
+    def fetch_playlists(self, term: str) -> Result[list[Playlist], str]:
         playlists = self.client.map(lambda client: client.get(f'playlist_search/{term}'))
         playlists = playlists.map(lambda playlists: [Playlist.from_json(json) for json in playlists])
         for i, playlist in enumerate(playlists):
@@ -32,6 +68,8 @@ class DataFetcher:
 
     def fetch_playlist_data(self, playlist: Playlist) -> Result[AudioFeatures, str]:
         audio_features = self.client.map(lambda client: client.get(f'playlist_rating/{playlist.id}'))
+        if audio_features is None: print('aaaaah none returned by get')
+
         audio_features = audio_features.map(lambda features: AudioFeatures.from_dict(features)) 
 
         return audio_features 
@@ -48,4 +86,4 @@ class DataFetcher:
 
         df = pd.DataFrame(list(data.items()), columns=['Term', 'Count'])
 
-        return df.sort_values('Count', ascending=False)
+        return df.sort_values('Count', ascending=False) 
