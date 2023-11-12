@@ -1,32 +1,16 @@
-from ValidationUtils.TaskType import ISpotifyTask
 from Models.Result import Result 
 from Models.AudioFeatures import AudioFeatures
 import tekore as tk
 from tekore._client import Spotify
 import azure.functions as func
-from ValidationUtils.PlaylistId import get_playlist_id
 
-class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
+class PlaylistFeatureGetter():
     """
-    Task to get the average features of a playlist.
+    Helper to get the average features of a playlist.
     """
 
-    request: func.HttpRequest = None 
-
-    def __init__(self, request: func.HttpRequest):
-        super().__init__(request)
-
-
-    def run(self, client: Spotify) -> Result[AudioFeatures, str]:
-        """
-        gets average playlist features and validates the input
-        """
-        playlist_id = get_playlist_id(self.request)
-        album_features = playlist_id.map(lambda playlist_id: self.__get_avg_playlist_features(playlist_id, client))
-        return album_features
-
-
-    def __get_avg_playlist_features(self, playlist_id: str, client: Spotify) -> Result[AudioFeatures, str]:
+    @staticmethod
+    def get_avg_playlist_features(playlist_id: str, client: Spotify) -> Result[AudioFeatures, str]:
         """
         gets the average features of a playlist.
 
@@ -36,12 +20,13 @@ class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
         Returns:
             Result[tk.model.AudioFeatures, str]: The features of the playlist if the operation was successful, or an error message otherwise. 
         """
-        features = self.__playlist_audio_features(playlist_id, client)
-        avg_features = features.map(lambda features: self.__get_avg_features(features))
+        features = PlaylistFeatureGetter.__playlist_audio_features(playlist_id, client)
+        avg_features = features.map(lambda features: PlaylistFeatureGetter.__get_avg_features(features))
         return avg_features 
 
 
-    def __get_avg_features(self, tracks_features: list[tk.model.AudioFeatures]) -> Result[AudioFeatures, str]:
+    @staticmethod
+    def __get_avg_features(tracks_features: list[tk.model.AudioFeatures]) -> Result[AudioFeatures, str]:
         """
         gets the average features of a list of tracks.
         """ 
@@ -80,17 +65,36 @@ class GetAvgPlaylistRating(ISpotifyTask[AudioFeatures]):
         return Result.Ok(avg_features)
 
 
-    def __playlist_audio_features(self, playlist_id: str, client: Spotify) -> Result[list[AudioFeatures], str]:
+    @staticmethod
+    def __playlist_audio_features(playlist_id: str, client: Spotify) -> Result[list[tk.model.AudioFeatures], str]:
         """
         gets all the audio features of a playlist. 
         """
-        track_ids: Result[list[str], str] = self.__get_playlist_track_ids(playlist_id, client)
-        audio_features = track_ids.map(lambda track_ids: client.tracks_audio_features(track_ids))
+        track_ids: Result[list[str], str] = PlaylistFeatureGetter.__get_playlist_track_ids(playlist_id, client)
+ 
+        audio_features = track_ids.map(lambda track_ids: PlaylistFeatureGetter.__batch_fetch_audio_features(track_ids, client))
 
-        return Result.Ok(audio_features)
+        return audio_features 
 
 
-    def __get_playlist_track_ids(self, playlist_id: str, client: Spotify) -> Result[list[str], str]:
+    @staticmethod
+    def __batch_fetch_audio_features(track_ids: list[str], client: Spotify) -> Result[list[tk.model.AudioFeatures], str]:
+        """
+        gets the audio features of a list of tracks in batches of 50. 
+        """
+        chunks = [track_ids[i:i + 50] for i in range(0, len(track_ids), 50)]
+        features = list[tk.model.AudioFeatures]()
+        for chunk in chunks:
+            try:
+                features.extend(client.tracks_audio_features(chunk))
+            except Exception as e:
+                return Result.Err(f"Failed to get audio features: {e.args[0]}")
+
+        return Result.Ok(features)
+
+
+    @staticmethod
+    def __get_playlist_track_ids(playlist_id: str, client: Spotify) -> Result[list[str], str]:
         """
         gets the tracks of a playlist.
 
