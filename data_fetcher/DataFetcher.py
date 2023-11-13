@@ -2,6 +2,8 @@ import pandas as pd
 from data_fetcher.ProxyClient import ProxyClient
 from common import Playlist, Result, AudioFeatures, ModelData
 import os
+import math 
+import tqdm
 
 class DataFetcher:
 
@@ -12,21 +14,33 @@ class DataFetcher:
         self.client = ProxyClient.start()
         self.terms = self.fetch_terms()
 
-    
-    def run(self) -> Result[str, str]:
+
+    def run(self, term: str, limit: int) -> None: 
         '''
-        function that runs the data fetching job for given terms
+        runs the data fetching job for given term and limit 
+        '''
+        
+        for row in self.terms.iterrows():
+
+            search_amt = int(math.log(row['Count'], 2)) 
+            result = self.search_and_write(
+                term=row['Term'],
+                limit=search_amt
+            )
+
+            if result.is_err(): print(result.error)
+
+
+    def search_and_write(self, term: str, limit: int) -> Result[str, str]:
+        '''
+        searches for playlists wiht given term and writes the limit amount of playlists to csv file 
         '''
 
-        playlists = self.fetch_playlists("rock")
-
-        print(len(playlists.value))
+        playlists = self.fetch_playlists(term, limit)
 
         playlist_data = playlists.map(lambda playlists : self.fetch_playlists_data(playlists))
 
-        print(len(playlist_data.value))
-
-        job_result = playlist_data.map(lambda data: self.write_results_to_csv(data, 'data/rock.csv'))
+        job_result = playlist_data.map(lambda data: self.write_results_to_csv(data, 'data/playlists.csv'))
         return job_result
 
     
@@ -75,11 +89,11 @@ class DataFetcher:
         return Result.Ok(results)
 
 
-    def fetch_playlists(self, term: str) -> Result[list[Playlist], str]:
+    def fetch_playlists(self, term: str, limit=10) -> Result[list[Playlist], str]:
         """
         function that fetches playlists for given search term 
         """
-        playlists = self.client.map(lambda client: client.get(f'playlist_search/{term}'))
+        playlists = self.client.map(lambda client: client.get(f'playlist_search/{term}/{limit}'))
         playlists = playlists.map(lambda playlists: [Playlist.from_json(json) for json in playlists])
         for i, playlist in enumerate(playlists):
             if playlist.is_err(): return Result.Err(playlist.error) 
