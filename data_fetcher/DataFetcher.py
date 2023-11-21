@@ -19,6 +19,7 @@ class DataFetcher:
         '''
 
         playlists = self.fetch_playlists("rock")
+        
 
         print(len(playlists.value))
 
