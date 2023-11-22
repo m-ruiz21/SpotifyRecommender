@@ -1,12 +1,19 @@
 from transformers import BertTokenizer
 from preprocessing import preprocessing_pipeline
 from transformers import BertModel
+from sklearn.model_selection import train_test_split
+from transformers import AdamW
+from transformers import get_linear_schedule_with_warmup
+from torch.nn.utils.clip_grad import clip_grad_norm
+from sklearn.preprocessing import StandardScaler
+from torch.utils.data import TensorDataset, DataLoader
 
 import torch.nn as nn
 import numpy as np
 import re
 import pandas as pd
 from preprocessing import preprocessing_pipeline
+import torch
 
 #-------------------------Tokenization-------------------------#
 
@@ -25,4 +32,85 @@ encoded_corpus = tokenizer(text = df.cleaned_description.to_list(),
 
 input_ids = encoded_corpus['input_ids']
 attention_masks = encoded_corpus['attention_mask']
+
+
+
+#-------------------------Filtering-------------------------#
+#filtering out the descriptions that are too long
+def filter_long_descriptions(tokenizer, descriptions, max_length):
+    indices = []
+    lengths = tokenizer(descriptions, padding = False, 
+                        truncation = False, return_length = True)['length']
+    for i in range (len(descriptions)):
+        if lengths[i] <= max_length - 2:
+            indices.append(i)
+    return indices
+
+#filtering out the descriptions that are too short
+short_desciptions = filter_long_descriptions(tokenizer, df.cleaned_description.to_list(), 300)
+input_ids = np.array(input_ids)[short_desciptions]
+attention_masks = np.array(attention_masks)[short_desciptions]
+labels = df.prix.to_numpy()[short_desciptions]
+
+
+#formatting the input
+test_size = 0.1
+seed = 42
+train_inputs, test_inputs, train_labels, test_labels = \
+            train_test_split(input_ids, labels, test_size=test_size, 
+                             random_state=seed)
+train_masks, test_masks, _, _ = train_test_split(attention_masks, 
+                                        labels, test_size=test_size, 
+                                        random_state=seed)
+
+#scale the label scores
+score_scaler = StandardScaler()
+score_scaler.fit(train_labels.reshape(-1, 1))
+
+train_labels = score_scaler.transform(train_labels.reshape(-1, 1))
+test_labels = score_scaler.transform(test_labels.reshape(-1, 1))
+
+batch_size = 32
+
+def create_dataloaders(inputs, masks, labels, batch_size):
+    input_tensor = torch.tensor(inputs)
+    mask_tensor = torch.tensor(masks)
+    labels_tensor = torch.tensor(labels)
+    dataset = TensorDataset(input_tensor, mask_tensor, 
+                            labels_tensor)
+    dataloader = DataLoader(dataset, batch_size=batch_size, 
+                            shuffle=True)
+    return dataloader
+
+train_dataloader = create_dataloaders(train_inputs, train_masks, 
+                                      train_labels, batch_size)
+test_dataloader = create_dataloaders(test_inputs, test_masks, 
+                                     test_labels, batch_size)
+
+
+#-------------------------Model-------------------------#
+
+#implement the model in pytorch
+class BertRegressor(nn.Module):
+
+    def __init__(self, drop_rate = 0.2, freeze_bert = False):
+        super(BertRegressor, self).__init__()
+        D_in, D_out = 768, 1
+
+        self.bert = \
+            BertModel.from_pretrained('bert-base-uncased')
+        
+        self.regressor = nn.Sequential(
+            nn.Dropout(drop_rate),
+            nn.Linear(D_in, D_out)
+        )
+
+    def forward(self, input_ids, attention_mask):
+        outputs = self.bert(input_ids = input_ids,
+                            attention_mask = attention_mask)
+        class_label_output = outputs[1]
+        outputs = self.regressor(class_label_output)
+        return outputs
+    
+model = BertRegressor(drop_rate = 0.2)
 
