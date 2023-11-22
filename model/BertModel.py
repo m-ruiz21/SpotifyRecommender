@@ -114,3 +114,43 @@ class BertRegressor(nn.Module):
     
 model = BertRegressor(drop_rate = 0.2)
 
+#-------------------------Training-------------------------#
+
+#setting up the training env
+if torch.cuda.is_available():       
+    device = torch.device("cuda")
+    print("Using GPU.")
+else:
+    print("No GPU available, using the CPU instead.")
+    device = torch.device("cpu")
+model.to(device)
+
+#define the adam optimizer with a 5e-5 learning rate
+optimizer = AdamW(model.parameters(), lr = 5e-5, eps = 1e-8)
+
+#number of epochs
+epochs = 5
+
+#total steps
+total_steps = len(train_dataloader) * epochs
+scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps = 0, num_training_steps = total_steps)
+loss_fn = nn.MSELoss()
+
+#training loop
+def train(model, optimizer, scheduler, loss_function, epochs,
+          train_dataloader, test_dataloader, device, clip_value = 2):
+    for epoch in range(epochs):
+        best_loss = 1e10
+        model.train()
+        for step, batch in enumerate(train_dataloader):
+            batch_inputs, batch_masks, batch_labels = tuple(t.to(device) for t in batch)
+            model.zero_grad()
+            outputs = model(batch_inputs, batch_masks)
+            loss = loss_function(outputs.squeeze(), batch_labels.squeeze())
+            loss.backward()
+            clip_grad_norm(model.parameters(), clip_value)
+            optimizer.step()
+            scheduler.step()
+    return model
+
+model = train(model, optimizer, scheduler, loss_fn, epochs, train_dataloader, device, clip_value= 2)
