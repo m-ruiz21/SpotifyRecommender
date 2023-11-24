@@ -52,7 +52,7 @@ class Result(Generic[T, E]):
     def __init__(self, create_key, value=None, error=None) -> None:
         assert(create_key == Result.__create_key, "Result objects must be created using the Result.ok() or Result.errmethod.")
 
-        if value:
+        if value is not None:
             self.value = value
             self.error = None
         else:   
