@@ -3,3 +3,4 @@ python-dotenv
 requests
 tekore
 tqdm
+emoji
