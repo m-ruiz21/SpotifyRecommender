@@ -66,6 +66,9 @@ class AudioFeatures(IApiModel):
     
     @classmethod
     def from_dict(cls, json_dict) -> Result['AudioFeatures', str]:
+        if json_dict == {}:
+            return Result.Ok({})
+        
         try:
             audio_features = cls(
                 json_dict["acousticness"],
