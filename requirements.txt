@@ -4,3 +4,4 @@ requests
 tekore
 tqdm
 emoji
+flask
