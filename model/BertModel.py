@@ -1,5 +1,4 @@
 from transformers import BertTokenizer
-from preprocessing import preprocessing_pipeline
 from transformers import BertModel
 from sklearn.model_selection import train_test_split
 from transformers import AdamW
@@ -12,45 +11,33 @@ import torch.nn as nn
 import numpy as np
 import re
 import pandas as pd
-from preprocessing import preprocessing_pipeline
 import torch
 
 #-------------------------Tokenization-------------------------#
 
-#NOTE : need a DF
+df = pd.read_csv('./data/playlist_features_filtered.csv', delimiter=',', index_col=0)
 
-#using the tokenizer from english bert
+
+# tokenize the playlist names 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-#max length can be 512 if needed but 300 is more efficient
-encoded_corpus = tokenizer(text = df.cleaned_description.to_list(),
+encoded_playlist_names = tokenizer(text = df.name.to_list(),        
                            add_special_tokens=True,
                            padding = 'max_length',
                            truncation = 'longest_first',
                            max_length = 300,
                            return_attention_mask = True)
 
-input_ids = encoded_corpus['input_ids']
-attention_masks = encoded_corpus['attention_mask']
+input_ids = encoded_playlist_names['input_ids']
+attention_masks = encoded_playlist_names['attention_mask']
 
-
-
-#-------------------------Filtering-------------------------#
-#filtering out the descriptions that are too long
-def filter_long_descriptions(tokenizer, descriptions, max_length):
-    indices = []
-    lengths = tokenizer(descriptions, padding = False, 
-                        truncation = False, return_length = True)['length']
-    for i in range (len(descriptions)):
-        if lengths[i] <= max_length - 2:
-            indices.append(i)
-    return indices
-
-#filtering out the descriptions that are too short
-short_desciptions = filter_long_descriptions(tokenizer, df.cleaned_description.to_list(), 300)
-input_ids = np.array(input_ids)[short_desciptions]
-attention_masks = np.array(attention_masks)[short_desciptions]
-labels = df.prix.to_numpy()[short_desciptions]
+# put data into numpy arrays
+names = np.array(input_ids)
+input_ids = np.array(input_ids)
+attention_masks = np.array(attention_masks)
+labels = df[
+        ["acousticness","danceability","duration_ms","energy","instrumentalness","key","liveness","loudness","mode","speechiness","tempo","time_signature","valence"]
+    ].to_numpy()
 
 
 #formatting the input
@@ -65,10 +52,10 @@ train_masks, test_masks, _, _ = train_test_split(attention_masks,
 
 #scale the label scores
 score_scaler = StandardScaler()
-score_scaler.fit(train_labels.reshape(-1, 1))
+score_scaler.fit(train_labels)
 
-train_labels = score_scaler.transform(train_labels.reshape(-1, 1))
-test_labels = score_scaler.transform(test_labels.reshape(-1, 1))
+train_labels = score_scaler.transform(train_labels)
+test_labels = score_scaler.transform(test_labels)
 
 batch_size = 32
 
