@@ -1,0 +1,5 @@
+scikit-learn
+torch==2.1.1+cuda
+transformers
+pandas
+tqdm

@@ -5,3 +5,4 @@ tekore
 tqdm
 emoji
 flask
+clean-text 
