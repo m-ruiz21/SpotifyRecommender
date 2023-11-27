@@ -1,4 +1,3 @@
-import json
 from Models.IApiModel import IApiModel
 
 class AudioFeatures(IApiModel):

@@ -14,9 +14,9 @@ class SpotifyClientFactory:
         Returns:
             Result[Spotify, str]: A Spotify client if the authorization was successful, or an error message otherwise.
         """
-
-        client_id: str | None = os.environ["SPOTIFY_CLIENT_ID"]
-        if client_id is None:
+        try:
+            client_id: str | None = os.environ["SPOTIFY_CLIENT_ID"]
+        except KeyError:
             return Result.Err("SPOTIFY_CLIENT_ID not found in environment variables")
 
         secret_key: str | None = os.environ["SPOTIFY_CLIENT_SECRET"]

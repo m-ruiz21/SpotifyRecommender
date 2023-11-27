@@ -25,30 +25,38 @@ class PlaylistSearcher():
             A Result with a list of Playlists if successful, otherwise a Result with an error message. 
         """
 
-        search_res = PlaylistSearcher.__send_search_query(search_query, client, limit)
-        playlists = search_res.map(lambda search_res: PlaylistSearcher.__generator_to_list(search_res[0]))
+        paged_search_res = PlaylistSearcher.__send_search_query(search_query, client, limit)
+        playlists = paged_search_res.map(lambda search_res: PlaylistSearcher.__generator_to_list(search_res))
         search_results = playlists.map(lambda playlists: Result.Ok(SearchResult(search_query, playlists)))
         return search_results
 
 
     @staticmethod
-    def __send_search_query(search_query, client: Spotify, limit) -> Result[list[Playlist], str]:
+    def __send_search_query(search_query, client: Spotify, limit:int) -> Result[list[Playlist], str]:
         """
         Sends the search query to Spotify and returns the result.
         """
 
         try:
-            search_res = client.search(search_query, types=('playlist',), limit=limit)
+            paged_search_res = []
+            for offset in range(0, limit, 50):
+                lim = min(limit - offset, 50)
+                offset_search_res = client.search(search_query, types=('playlist',), offset=offset, limit=lim, market='US')
+                paged_search_res.append(offset_search_res[0])
 
-            return Result.Ok(search_res)
+            return Result.Ok(paged_search_res)
         except Exception as e:
             return Result.Err(f"Failed to search for playlist: {e.args[0]}")
 
 
     @staticmethod
-    def __generator_to_list(generator: Generator) -> Result[list[Playlist], str]:
+    def __generator_to_list(generators: list[Generator]) -> Result[list[Playlist], str]:
         """
         Adaptor for spotify client's generator to a list of Playlists.
         """ 
-        res = [Playlist.from_simple_playlist(playlist) for playlist in generator.items]
+        res = []
+        for generator in generators:
+            generator_list = [Playlist.from_simple_playlist(playlist) for playlist in generator.items]
+            res.extend(generator_list)
+
         return Result.Ok(res)

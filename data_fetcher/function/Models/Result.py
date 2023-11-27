@@ -1,4 +1,5 @@
 from typing import TypeVar, Generic
+import logging
 
 T = TypeVar('T')
 E = TypeVar('E')
@@ -52,7 +53,7 @@ class Result(Generic[T, E]):
     def __init__(self, create_key, value=None, error=None) -> None:
         assert(create_key == Result.__create_key, "Result objects must be created using the Result.ok() or Result.errmethod.")
 
-        if value:
+        if value is not None:
             self.value = value
             self.error = None
         else:   
@@ -64,7 +65,7 @@ class Result(Generic[T, E]):
         """
         Returns True if the result is ok, False otherwise.
         """
-        return self.value is not None
+        return self.error is None
 
 
     def is_err(self) -> bool:
@@ -114,9 +115,11 @@ class Result(Generic[T, E]):
         """
         if self.is_ok():
             try:
-                return func(self.value)
+                result = func(self.value)
+                return result 
             except Exception as e:
-                return Result.Err(e.args[0])
+                error_msg = e.args[0] if e.args else str(e) 
+                return Result.Err(error_msg)
         else:
             return self
 
