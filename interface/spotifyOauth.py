@@ -34,8 +34,6 @@ def app_factory() -> Flask:
             token = cred.refresh(token)
             users[user] = token
 
-        
-
         return page
     
 
