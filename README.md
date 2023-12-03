@@ -20,21 +20,39 @@ For specific implementation details and tips on navigating the repository, refer
 - The [Design Doc](https://docs.google.com/document/d/1zC-kdPw4mLZAQSHgnoq8gnnF_FW-U8kmtuk2DkBA-6E/edit?usp=sharing)
 
 ## Getting started
+### Running the virtual environment
 To get started on the virtual enviornment as follows:
 ```bash
 env/Scripts/activate
 ```
-This script should activate the python virtual env which includes all of the required packages installed.
+This script should activate the python virtual env which includes all of the required packages.  
+
+To install the packages: 
+```bash
+pip install -r requirements.txt
+```
+
 Afterwards you can run any sub-module / directory with:
 ```bash
 py -m {directory}.{file name without .py}
 ```
+
 So for example, to run data_fetcher/fetcher_driver.py:
 ```bash
 py -m data_fetcher.fetcher_driver
 ```
 
 Finally, when you install a package, make sure you install it in the virtual env and add the name of the package to requirements.txt so everybody stays up to date!
+### Running API Model
+First activate the model virtual env (and make sure to install the dependencies if you have not already)
+```bash
+model/env/Scripts/activate
+```
+
+Then to run:
+```bash
+flask --app "model_api.py" run
+```
 
 ## Contributing
 To get started, select a feature from the issues tab (you can also check out the Milestones page to select a task), create branch for the PR, accomplish task, and attach it to PR.  
