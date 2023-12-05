@@ -1,7 +1,7 @@
 # Spotify Copilot : Customized Playlist Generator For Whatever Music You Want, Whenver You Want It 
 
 ## Overview
-**Spotify Copilot** is a project with the aim to take the first steps towards a conversational recommendation system (CRS) for music by allowing users to generate custom playlists given a playlist name. 
+**Spotify Copilot** is a project with the aim to take the first steps towards a conversational recommendation system (CRS) for music by allowing users to generate custom playlists given a playlist name and thus testing the expressiveness of the Spotify Recommendation System. 
 
 The project leverages [Spotify's recommendations service](https://developer.spotify.com/documentation/web-api/reference/get-recommendations) and its ability to fine tune recommendations given song latent factors that Spotify calls 'Song Features'. 
 
