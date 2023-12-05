@@ -5,13 +5,13 @@
 
 The project leverages [Spotify's recommendations service](https://developer.spotify.com/documentation/web-api/reference/get-recommendations) and its ability to fine tune recommendations given song latent factors that Spotify calls 'Song Features'. 
 
-The objective of the project, therefore, is to translate human speech to these Song Features in order to generate highly customizable recommendations.
- 
+The objective of the project, therefore, is to translate human speech to these Song Features in order to generate highly customizable recommendations.  
+
 To achieve this, the Program leverages a BERT model fine-tuned for the regression task of predicting the Song Features. This model is then trained on a set of about 9-10 thousand playlists and their resulting latent factors. 
 
 The trained model is then deployed to a flask API so the user can interact with it using the [front end interface](https://github.com/m-ruiz21/SpotifyRecommender-FrontEnd) built with Next.js, Tailwind, and Typescript.
 
-For more specific implementation details and how to navigate the repository, you can reference the [wiki](https://github.com/m-ruiz21/SpotifyRecommender/wiki) (recommended), the [Design Doc](https://docs.google.com/document/d/1zC-kdPw4mLZAQSHgnoq8gnnF_FW-U8kmtuk2DkBA-6E/edit?usp=sharing), or the video presentation.
+Unfortunately, there's been no time to deploy (for now) so to see the project in action you can check out our [video demo](https://www.youtube.com/watch?v=pcJfHyg4pdk) (also in the repo description).
 
 ## Documenation
 For specific implementation details and tips on navigating the repository, reference:
