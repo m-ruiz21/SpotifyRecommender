@@ -16,7 +16,6 @@ For more specific implementation details and how to navigate the repository, you
 ## Documenation
 For specific implementation details and tips on navigating the repository, reference:
 - The [wiki](https://github.com/m-ruiz21/SpotifyRecommender/wiki) (recommended)
-- [Recorded Detailed Presentation](https://docs.google.com/presentation/d/1SGs4Wn72nEROtqGHy3rxtvuKNK9_SIm0DII24ig9xr8/edit?usp=sharing)
 - The [Design Doc](https://docs.google.com/document/d/1zC-kdPw4mLZAQSHgnoq8gnnF_FW-U8kmtuk2DkBA-6E/edit?usp=sharing)
 
 ## Getting started
